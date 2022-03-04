@@ -27,11 +27,17 @@ if (( $+commands[tmux] )); then
 
   if [[ "$TMUX_AUTOSTART" == 'true' && -z "$TMUX" ]]; then
     function _tmux_autostart() {
-		[[ -f /usr/share/dict/words ]] && \
-			name=$(shuf -n1  /usr/share/dict/words | tr -d -c '[:alnum:]') \
-			|| name=tmux-$(date +%s)
-		[[ $TMUX_ATTACH == "true" ]] && a="-A" || a=""
-      cmd="tmux -2 new $a -s $name"
+		if [[ $TMUX_ATTACH == "true" ]]; then
+			a="-A"
+			n=""
+		else
+			a=""
+			n="-s tmux-$(date +%s)"
+			[[ -f /usr/share/dict/words ]] && \
+				n="-s $(shuf -n1  /usr/share/dict/words | tr -d -c '[:alnum:]')"
+		fi
+
+      cmd="tmux -2 new $a $n"
 	  echo TERM=xterm-256color $cmd
 	  bash -c "TERM=xterm-256color $cmd"
       # TERM=xterm-256color tmux new -s $(shuf -n1  /usr/share/dict/words | tr -d -c '[:alnum:]')
